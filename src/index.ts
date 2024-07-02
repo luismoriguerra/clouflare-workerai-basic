@@ -11,8 +11,14 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
-export default {
-	async fetch(request, env, ctx): Promise<Response> {
-		return new Response('Hello World!');
-	},
-} satisfies ExportedHandler<Env>;
+export interface Env { }
+
+import { Hono } from 'hono';
+
+const app = new Hono<Env>();
+
+app.get('/', c => {
+	return c.json({ message: 'Hello World!' });
+})
+
+export default app
