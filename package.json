@@ -17,6 +17,8 @@
     "wrangler": "^3.60.3"
   },
   "dependencies": {
+    "@cloudflare/ai": "^1.2.2",
+    "base64-js": "^1.5.1",
     "hono": "^4.4.10"
   }
 }

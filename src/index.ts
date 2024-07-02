@@ -1,24 +1,41 @@
-/**
- * Welcome to Cloudflare Workers! This is your first worker.
- *
- * - Run `npm run dev` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run `npm run deploy` to publish your worker
- *
- * Bind resources to your worker in `wrangler.toml`. After adding bindings, a type definition for the
- * `Env` object can be regenerated with `npm run cf-typegen`.
- *
- * Learn more at https://developers.cloudflare.com/workers/
- */
 
-export interface Env { }
+
+import { Ai } from '@cloudflare/ai';
+
+type Bindings = {
+	AI: Ai;
+}
 
 import { Hono } from 'hono';
+const model = '@cf/mistral/mistral-7b-instruct-v0.1';
 
-const app = new Hono<Env>();
+const app = new Hono<{ Bindings: Bindings }>();
 
-app.get('/', c => {
-	return c.json({ message: 'Hello World!' });
+app.get('/chat', async (ctx) => {
+
+	const content = ctx.req.query('query') || 'what is the origin of the phrase hello, world?';
+
+	const ai = new Ai(ctx.env.AI);
+	const messages = [
+		{
+			role: 'system', content: ' you are a friendly assistant',
+		},
+		{
+			role: 'user', content,
+		}
+	];
+
+	const inputs = { messages };
+
+	const res = await ai.run(model, inputs);
+
+	return ctx.json(res);
+
+});
+
+
+app.get('/', ctx => {
+	return ctx.json({ message: 'Hello World!' });
 })
 
 export default app
